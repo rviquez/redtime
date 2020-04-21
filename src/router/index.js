@@ -3,6 +3,7 @@ import VueRouter from "vue-router";
 import Home from "../views/Home.vue";
 import Register from "../components/Register";
 import Dashboard from "../components/Dashboard";
+import Firebase from "firebase";
 
 Vue.use(VueRouter);
 
@@ -43,9 +44,12 @@ const router = new VueRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
+  const currentUser = Firebase.auth().currentUser;
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-  if (requiresAuth) {
+  if (requiresAuth && !currentUser) {
     next("");
+  } else if (requiresAuth && currentUser) {
+    next();
   } else {
     next();
   }

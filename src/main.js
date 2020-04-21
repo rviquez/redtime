@@ -7,16 +7,16 @@ import vuetify from "./plugins/vuetify";
 import * as firebase from "firebase";
 
 Vue.config.productionTip = false;
-
+console.log(process.env);
 var firebaseConfig = {
-  apiKey: "AIzaSyBSNgyM0gvNE_VuprrlaDbVIEtkqp-HW6M",
-  authDomain: "redtime-d7beb.firebaseapp.com",
-  databaseURL: "https://redtime-d7beb.firebaseio.com",
-  projectId: "redtime-d7beb",
-  storageBucket: "redtime-d7beb.appspot.com",
-  messagingSenderId: "745948322914",
-  appId: "1:745948322914:web:3ceb17d4ebaa98a876453b",
-  measurementId: "G-DENHGGD0G2"
+  apiKey: process.env.VUE_APP_FIREBASE_API_KEY,
+  authDomain: process.env.VUE_APP_FIREBASE_AUTHDOMAIN,
+  databaseURL: process.env.VUE_APP_FIREBASE_DATABASE_URL,
+  projectId: process.env.VUE_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.VUE_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.VUE_APP_FIREBASE_MESSAGE_SENDER_ID,
+  appId: process.env.VUE_APP_FIREBASE_APP_ID,
+  measurementId: process.env.VUE_APP_FIREBASE_MEASUREMENT_ID
 };
 
 firebase.initializeApp(firebaseConfig);
