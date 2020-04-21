@@ -49,7 +49,12 @@
           ></v-text-field>
         </v-col>
         <v-col cols="12">
-          <v-btn color="accent" class="mr-4" @click="submit">
+          <v-btn
+            color="accent"
+            class="mr-4"
+            @click="submit"
+            :disabled="!form.valid"
+          >
             Register
           </v-btn>
         </v-col>
@@ -59,6 +64,7 @@
 </template>
 <script>
 import firebase from "firebase";
+import { mapMutations } from "vuex";
 
 export default {
   data() {
@@ -84,22 +90,28 @@ export default {
   },
   methods: {
     submit() {
-      firebase
-        .auth()
-        .createUserWithEmailAndPassword(this.form.email, this.form.password)
-        .then(data => {
-          let name = this.form.name;
-          data.user
-            .updateProfile({
-              displayName: name
-            })
-            .then(() => {});
-          this.$router.replace({ name: "Welcome" });
-        })
-        .catch(err => {
-          this.error = err.message;
-        });
-    }
+      if (this.$refs.form.validate()) {
+        firebase
+          .auth()
+          .createUserWithEmailAndPassword(this.form.email, this.form.password)
+          .then(data => {
+            let name = this.form.name;
+            data.user
+              .updateProfile({
+                displayName: name
+              })
+              .then(() => {});
+            this.$router.replace({ name: "Home" });
+          })
+          .catch(err => {
+            this.error = `Something went wrong: ${err.code}: ${err.message}`;
+            this.setSnack(this.error);
+          });
+      }
+    },
+    ...mapMutations({
+      setSnack: "snackbar/setSnack"
+    })
   }
 };
 </script>

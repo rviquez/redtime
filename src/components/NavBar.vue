@@ -3,6 +3,7 @@
     <v-menu
       v-model="menu"
       :close-on-content-click="false"
+      :close-on-click="closeOnClick"
       :nudge-width="200"
       offset-x
       transition="slide-x-transition"
@@ -32,7 +33,7 @@
         <v-list>
           <v-list-item>
             <v-list-item-action>
-              <v-btn text @click.prevent="signOut">Sign out</v-btn>
+              <v-btn text @click="signOut">Sign out</v-btn>
             </v-list-item-action>
           </v-list-item>
         </v-list>
@@ -40,47 +41,26 @@
       <v-card v-if="!user.loggedIn">
         <v-list>
           <v-list-item>
-            <Login />
+            <v-container fluid>
+              <v-row>
+                <v-col cols="12">
+                  <Login />
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="12">
+                  New user?
+                  <a to="register" @click="goToRegister" class="nav-link"
+                    >Register</a
+                  >
+                </v-col>
+              </v-row>
+            </v-container>
           </v-list-item>
         </v-list>
       </v-card>
     </v-menu>
   </div>
-  <!-- <nav class="navbar navbar-expand-md navbar-light navbar-laravel">
-    <div class="container">
-      <router-link to="/" class="navbar-brand">Vue Firebase Auth</router-link>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent"
-        aria-expanded="false"
-        aria-label
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto"></ul>
-        <ul class="navbar-nav ml-auto">
-          <template v-if="user.loggedIn">
-            <div class="nav-item">{{ user.data.displayName }}</div>
-            <li class="nav-item">
-              <a class="nav-link" @click.prevent="signOut">Sign out</a>
-            </li>
-          </template>
-          <template v-else>
-            <li class="nav-item">
-              <router-link to="login" class="nav-link">Login</router-link>
-            </li>
-            <li class="nav-item">
-              <router-link to="register" class="nav-link">Register</router-link>
-            </li>
-          </template>
-        </ul>
-      </div>
-    </div>
-  </nav> -->
 </template>
 <script>
 import Login from "./Login";
@@ -94,7 +74,8 @@ export default {
     return {
       menu: false,
       loginText: "Login",
-      profileText: "Profile"
+      profileText: "Profile",
+      closeOnClick: true
     };
   },
   computed: {
@@ -113,6 +94,9 @@ export default {
             name: "Home"
           });
         });
+    },
+    goToRegister() {
+      this.$router.replace({ name: "Register" });
     }
   }
 };

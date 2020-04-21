@@ -7,7 +7,7 @@ import vuetify from "./plugins/vuetify";
 import * as firebase from "firebase";
 
 Vue.config.productionTip = false;
-console.log(process.env);
+
 var firebaseConfig = {
   apiKey: process.env.VUE_APP_FIREBASE_API_KEY,
   authDomain: process.env.VUE_APP_FIREBASE_AUTHDOMAIN,

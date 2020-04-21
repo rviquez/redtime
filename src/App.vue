@@ -24,8 +24,10 @@
         <v-layout align-center justify-center>
           <v-flex xs12 sm8 md4>
             <!-- <Welcome /> -->
-            <router-view></router-view> </v-flex
-        ></v-layout>
+            <router-view></router-view>
+          </v-flex>
+        </v-layout>
+        <Snackbar></Snackbar>
       </v-container>
     </v-content>
   </v-app>
@@ -34,17 +36,14 @@
 <script>
 // import Welcome from "./components/Welcome";
 import Navbar from "./components/NavBar";
+import Snackbar from "./components/Snackbar.vue";
 
 export default {
   name: "App",
 
   components: {
-    // Welcome
-    Navbar
-  },
-
-  data: () => ({
-    //
-  })
+    Navbar,
+    Snackbar
+  }
 };
 </script>
