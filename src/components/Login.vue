@@ -63,7 +63,7 @@ export default {
           .signInWithEmailAndPassword(this.form.email, this.form.password)
           .then(data => {
             if (data) {
-              this.$router.replace({ name: "Dashboard" });
+              this.$router.replace({ name: "Calendar" });
             }
           })
           .catch(err => {

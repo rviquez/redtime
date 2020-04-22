@@ -3,7 +3,8 @@ import VueRouter from "vue-router";
 import Home from "../views/Home.vue";
 import Register from "../components/Register";
 import Dashboard from "../components/Dashboard";
-import Firebase from "firebase";
+import Calendar from "../components/Calendar";
+import firebase from "@/firebaseinit.js";
 
 Vue.use(VueRouter);
 
@@ -27,6 +28,14 @@ const routes = [
     }
   },
   {
+    path: "/calendar",
+    name: "Calendar",
+    component: Calendar,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
     path: "/about",
     name: "About",
     // route level code-splitting
@@ -44,12 +53,9 @@ const router = new VueRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-  const currentUser = Firebase.auth().currentUser;
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-  if (requiresAuth && !currentUser) {
-    next("");
-  } else if (requiresAuth && currentUser) {
-    next();
+  if (requiresAuth && !(await firebase.getCurrentUser())) {
+    next({ path: "/" });
   } else {
     next();
   }
