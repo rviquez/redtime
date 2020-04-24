@@ -2,7 +2,7 @@
   <v-row class="fill-height">
     <v-btn
       @click.stop="dialog = true"
-      color="primary"
+      color="accent"
       fab
       dark
       small
@@ -28,12 +28,11 @@
           <v-btn fab text small @click="next">
             <v-icon small>mdi-chevron-right</v-icon>
           </v-btn>
-          <!-- <div class="flex-grow-1"></div>
+          <div class="flex-grow-1"></div>
           <v-menu bottom right>
             <template v-slot:activator="{ on }">
               <v-btn text v-on="on">
-                <span>{{ typeToLabel[type] }}</span>
-                <v-icon right>mdi-menu-down</v-icon>
+                <span><v-icon right>mdi-calendar-multiple</v-icon></span>
               </v-btn>
             </template>
             <v-list>
@@ -50,7 +49,7 @@
                 <v-list-item-title>4 days</v-list-item-title>
               </v-list-item>
             </v-list>
-          </v-menu> -->
+          </v-menu>
         </v-toolbar>
       </v-sheet>
 
@@ -58,25 +57,26 @@
         <v-card>
           <v-container>
             <v-form @submit.prevent="addEvent">
-              <v-text-field
-                v-model="name"
-                type="text"
-                label="event name (required)"
-              ></v-text-field>
-              <v-text-field
-                v-model="details"
-                type="text"
-                label="detail"
-              ></v-text-field>
+              <v-menu bottom right>
+                <template v-slot:activator="{ on }">
+                  <v-btn text v-on="on">
+                    <span>{{ name }}</span>
+                    <v-icon right>mdi-menu-down</v-icon>
+                  </v-btn>
+                </template>
+                <v-list>
+                  <v-list-item @click="name = 'period'">
+                    <v-list-item-title>Period</v-list-item-title>
+                  </v-list-item>
+                  <v-list-item @click="name = 'ovulation'">
+                    <v-list-item-title>Ovulation</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
               <v-text-field
                 v-model="start"
                 type="date"
                 label="start (required)"
-              ></v-text-field>
-              <v-text-field
-                v-model="end"
-                type="date"
-                label="end (required)"
               ></v-text-field>
               <v-text-field
                 v-model="color"
@@ -100,7 +100,7 @@
         <v-calendar
           ref="calendar"
           v-model="focus"
-          color="primary"
+          color="secondary"
           :events="events"
           :event-color="getEventColor"
           :event-margin-bottom="3"
@@ -182,8 +182,7 @@ export default {
       day: "Day",
       "4day": "4 Days"
     },
-    name: null,
-    details: null,
+    name: "Period",
     start: null,
     end: null,
     color: "#1976D2", // default event color
@@ -272,7 +271,6 @@ export default {
         await db.collection("calEvent").add({
           user: this.user.data.email,
           name: this.name,
-          details: this.details,
           start: this.start,
           end: this.end,
           color: this.color
