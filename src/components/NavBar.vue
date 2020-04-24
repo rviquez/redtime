@@ -9,9 +9,10 @@
       transition="slide-x-transition"
     >
       <template v-slot:activator="{ on }">
-        <v-btn v-on="on" text>{{
-          user.loggedIn ? profileText : loginText
-        }}</v-btn>
+        <v-btn v-on="on" text
+          ><v-icon v-if="user.loggedIn" dark>mdi-account-circle</v-icon>
+          <span v-if="!user.loggedIn">{{ loginText }}</span></v-btn
+        >
       </template>
 
       <v-card v-if="user.loggedIn">
@@ -44,7 +45,7 @@
             <v-container fluid>
               <v-row>
                 <v-col cols="12">
-                  <Login />
+                  <Login @loggedIn="loggedIn" />
                 </v-col>
               </v-row>
               <v-row>
@@ -94,9 +95,13 @@ export default {
             name: "Home"
           });
         });
+      this.menu = false;
     },
     goToRegister() {
       this.$router.replace({ name: "Register" });
+    },
+    loggedIn() {
+      this.menu = false;
     }
   }
 };

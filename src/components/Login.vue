@@ -70,6 +70,7 @@ export default {
             this.error = `Something went wrong: ${err.code}: ${err.message}`;
             this.setSnack(this.error);
           });
+        this.$emit("loggedIn");
       }
     },
     ...mapMutations({
