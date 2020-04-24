@@ -15,9 +15,6 @@
     <v-col>
       <v-sheet height="64">
         <v-toolbar flat color="primary">
-          <!-- <v-btn color="secondary" text dark>
-            <v-icon small>mdi-plus</v-icon>
-          </v-btn> -->
           <v-btn text class="mr-4" @click="setToday">
             <v-icon small>mdi-calendar-today</v-icon>
           </v-btn>
@@ -56,23 +53,7 @@
       <v-dialog v-model="dialog" max-width="500">
         <v-card>
           <v-container>
-            <v-form @submit.prevent="addEvent">
-              <v-menu bottom right>
-                <template v-slot:activator="{ on }">
-                  <v-btn text v-on="on">
-                    <span>{{ name }}</span>
-                    <v-icon right>mdi-menu-down</v-icon>
-                  </v-btn>
-                </template>
-                <v-list>
-                  <v-list-item @click="name = 'period'">
-                    <v-list-item-title>Period</v-list-item-title>
-                  </v-list-item>
-                  <v-list-item @click="name = 'ovulation'">
-                    <v-list-item-title>Ovulation</v-list-item-title>
-                  </v-list-item>
-                </v-list>
-              </v-menu>
+            <v-form ref="addForm" @submit.prevent="addEvent">
               <v-text-field
                 v-model="start"
                 type="date"
@@ -100,7 +81,7 @@
         <v-calendar
           ref="calendar"
           v-model="focus"
-          color="secondary"
+          color="primary"
           :events="events"
           :event-color="getEventColor"
           :event-margin-bottom="3"
@@ -128,7 +109,16 @@
             </v-toolbar>
             <v-card-text>
               <form v-if="currentlyEditing !== selectedEvent.id">
-                {{ selectedEvent.details }}
+                <v-text-field
+                  v-model="selectedEvent.start"
+                  type="date"
+                  label="start (required)"
+                ></v-text-field>
+                <v-text-field
+                  v-model="selectedEvent.color"
+                  type="color"
+                  label="color (click to open color menu)"
+                ></v-text-field>
               </form>
               <form v-else>
                 <textarea-autosize
@@ -142,12 +132,13 @@
               </form>
             </v-card-text>
             <v-card-actions>
-              <v-btn text color="secondary" @click="selectedOpen = false">
+              <v-btn text color="accent" @click="selectedOpen = false">
                 close
               </v-btn>
               <v-btn
                 v-if="currentlyEditing !== selectedEvent.id"
                 text
+                color="secondary"
                 @click.prevent="editEvent(selectedEvent)"
               >
                 edit
@@ -169,7 +160,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 import { db } from "@/main";
 export default {
   data: () => ({
@@ -185,7 +176,7 @@ export default {
     name: "Period",
     start: null,
     end: null,
-    color: "#1976D2", // default event color
+    color: "secondary", // default event color
     currentlyEditing: null,
     selectedEvent: {},
     selectedElement: null,
@@ -267,12 +258,17 @@ export default {
       this.$refs.calendar.next();
     },
     async addEvent() {
-      if (this.name && this.start && this.end) {
+      if (
+        this.name &&
+        this.start &&
+        this.start.date === undefined &&
+        this.color
+      ) {
         await db.collection("calEvent").add({
           user: this.user.data.email,
           name: this.name,
           start: this.start,
-          end: this.end,
+          end: this.setEndTime(),
           color: this.color
         });
         this.getEvents();
@@ -282,8 +278,17 @@ export default {
           (this.end = ""),
           (this.color = "");
       } else {
-        alert("You must enter event name, start, and end time");
+        this.setSnack(
+          "Event not saved. You must enter start time and a color."
+        );
       }
+      this.$refs.addForm.reset();
+    },
+    setEndTime() {
+      var newDate = new Date(this.start);
+      newDate.setDate(newDate.getDate() + 4);
+      var endDate = new Date(newDate).toJSON().slice(0, 10);
+      return endDate;
     },
     editEvent(ev) {
       this.currentlyEditing = ev.id;
@@ -329,7 +334,10 @@ export default {
       return d > 3 && d < 21
         ? "th"
         : ["th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th"][d % 10];
-    }
+    },
+    ...mapMutations({
+      setSnack: "snackbar/setSnack"
+    })
   }
 };
 </script>
