@@ -164,7 +164,6 @@ import { mapGetters, mapMutations } from "vuex";
 import { db } from "@/main";
 export default {
   data: () => ({
-    today: new Date().toISOString().substr(0, 10),
     focus: new Date().toISOString().substr(0, 10),
     type: "month",
     typeToLabel: {
@@ -188,6 +187,7 @@ export default {
     this.getEvents();
   },
   computed: {
+    today: new Date().toISOString().substr(0, 10),
     title() {
       const { start, end } = this;
       if (!start || !end) {
@@ -249,7 +249,7 @@ export default {
       return event.color;
     },
     setToday() {
-      this.focus = this.today;
+      this.focus = new Date().toISOString().substr(0, 10);
     },
     prev() {
       this.$refs.calendar.prev();
