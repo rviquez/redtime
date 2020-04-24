@@ -258,18 +258,15 @@ export default {
       this.$refs.calendar.next();
     },
     async addEvent() {
-      if (
-        this.name &&
-        this.start &&
-        this.start.date === undefined &&
-        this.color
-      ) {
+      console.log(this.start);
+      console.log(this.name);
+      if (this.start && this.start.date === undefined) {
         await db.collection("calEvent").add({
           user: this.user.data.email,
-          name: this.name,
+          name: this.name ? this.name : "Period",
           start: this.start,
           end: this.setEndTime(),
-          color: this.color
+          color: this.color ? this.color : "secondary"
         });
         this.getEvents();
         (this.name = ""),
@@ -282,7 +279,6 @@ export default {
           "Event not saved. You must enter start time and a color."
         );
       }
-      this.$refs.addForm.reset();
     },
     setEndTime() {
       var newDate = new Date(this.start);
