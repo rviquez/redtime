@@ -1,26 +1,37 @@
 <template>
   <v-row class="fill-height">
+    <v-btn
+      @click.stop="dialog = true"
+      color="primary"
+      fab
+      dark
+      small
+      fixed
+      right
+      bottom
+    >
+      <v-icon>mdi-plus</v-icon>
+    </v-btn>
     <v-col>
       <v-sheet height="64">
-        <v-toolbar flat color="white">
-          <v-btn color="primary" dark @click.stop="dialog = true">
-            New Event
-          </v-btn>
-          <v-btn outlined class="mr-4" @click="setToday">
-            Today
+        <v-toolbar flat color="primary">
+          <!-- <v-btn color="secondary" text dark>
+            <v-icon small>mdi-plus</v-icon>
+          </v-btn> -->
+          <v-btn text class="mr-4" @click="setToday">
+            <v-icon small>mdi-calendar-today</v-icon>
           </v-btn>
           <v-btn fab text small @click="prev">
             <v-icon small>mdi-chevron-left</v-icon>
           </v-btn>
+          <v-toolbar-title>{{ title }}</v-toolbar-title>
           <v-btn fab text small @click="next">
             <v-icon small>mdi-chevron-right</v-icon>
           </v-btn>
-
-          <v-toolbar-title>{{ title }}</v-toolbar-title>
-          <div class="flex-grow-1"></div>
+          <!-- <div class="flex-grow-1"></div>
           <v-menu bottom right>
             <template v-slot:activator="{ on }">
-              <v-btn outlined v-on="on">
+              <v-btn text v-on="on">
                 <span>{{ typeToLabel[type] }}</span>
                 <v-icon right>mdi-menu-down</v-icon>
               </v-btn>
@@ -39,7 +50,7 @@
                 <v-list-item-title>4 days</v-list-item-title>
               </v-list-item>
             </v-list>
-          </v-menu>
+          </v-menu> -->
         </v-toolbar>
       </v-sheet>
 
@@ -158,6 +169,7 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 import { db } from "@/main";
 export default {
   data: () => ({
@@ -213,13 +225,20 @@ export default {
     monthFormatter() {
       return this.$refs.calendar.getFormatter({
         timeZone: "UTC",
-        month: "long"
+        month: "short"
       });
-    }
+    },
+    ...mapGetters({
+      // map `this.user` to `this.$store.getters.user`
+      user: "user"
+    })
   },
   methods: {
     async getEvents() {
-      let snapshot = await db.collection("calEvent").get();
+      let snapshot = await db
+        .collection("calEvent")
+        .where("user", "==", this.user.data.email)
+        .get();
       const events = [];
       snapshot.forEach(doc => {
         let appData = doc.data();
@@ -251,6 +270,7 @@ export default {
     async addEvent() {
       if (this.name && this.start && this.end) {
         await db.collection("calEvent").add({
+          user: this.user.data.email,
           name: this.name,
           details: this.details,
           start: this.start,
