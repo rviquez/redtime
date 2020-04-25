@@ -99,7 +99,7 @@
           full-width
           offset-x
         >
-          <v-card color="grey lighten-4" min-width="350px" flat>
+          <v-card color="grey" min-width="350px" flat>
             <v-toolbar :color="selectedEvent.color" dark>
               <v-btn @click="deleteEvent(selectedEvent.id)" icon>
                 <v-icon>mdi-delete</v-icon>
@@ -132,7 +132,7 @@
               </form>
             </v-card-text>
             <v-card-actions>
-              <v-btn text color="accent" @click="selectedOpen = false">
+              <v-btn text color="secondary" @click="selectedOpen = false">
                 close
               </v-btn>
               <v-btn
