@@ -160,7 +160,7 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from "vuex";
+import { mapGetters, mapMutations, mapState } from "vuex";
 import { db } from "@/main";
 export default {
   data: () => ({
@@ -180,7 +180,6 @@ export default {
     selectedEvent: {},
     selectedElement: null,
     selectedOpen: false,
-    events: [],
     dialog: false
   }),
   mounted() {
@@ -221,21 +220,12 @@ export default {
     ...mapGetters({
       // map `this.user` to `this.$store.getters.user`
       user: "user"
-    })
+    }),
+    ...mapState(["events"])
   },
   methods: {
     async getEvents() {
-      let snapshot = await db
-        .collection("calEvent")
-        .where("user", "==", this.user.data.email)
-        .get();
-      const events = [];
-      snapshot.forEach(doc => {
-        let appData = doc.data();
-        appData.id = doc.id;
-        events.push(appData);
-      });
-      this.events = events;
+      this.$store.dispatch("setEvents");
     },
     setDialogDate({ date }) {
       this.dialogDate = true;
@@ -258,17 +248,16 @@ export default {
       this.$refs.calendar.next();
     },
     async addEvent() {
-      console.log(this.start);
-      console.log(this.name);
       if (this.start && this.start.date === undefined) {
-        await db.collection("calEvent").add({
+        var newEvent = {
           user: this.user.data.email,
           name: this.name ? this.name : "Period",
           start: this.start,
           end: this.setEndTime(),
           color: this.color ? this.color : "secondary"
-        });
-        this.getEvents();
+        };
+        this.events.push(newEvent);
+        await db.collection("calEvent").add(newEvent);
         (this.name = ""),
           (this.details = ""),
           (this.start = ""),

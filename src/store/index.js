@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import Snackbar from "./snackbar";
+import { db } from "@/main";
 
 Vue.use(Vuex);
 
@@ -9,7 +10,8 @@ export default new Vuex.Store({
     user: {
       loggedIn: false,
       data: null
-    }
+    },
+    events: []
   },
   getters: {
     user(state) {
@@ -22,6 +24,9 @@ export default new Vuex.Store({
     },
     SET_USER(state, data) {
       state.user.data = data;
+    },
+    setEvents: (state, events) => {
+      state.events = events;
     }
   },
   actions: {
@@ -35,6 +40,19 @@ export default new Vuex.Store({
       } else {
         commit("SET_USER", null);
       }
+    },
+    setEvents: async context => {
+      let snapshot = await db
+        .collection("calEvent")
+        .where("user", "==", context.getters.user.data.email)
+        .get();
+      const events = [];
+      snapshot.forEach(doc => {
+        let appData = doc.data();
+        appData.id = doc.id;
+        events.push(appData);
+      });
+      context.commit("setEvents", events);
     }
   },
   modules: {
