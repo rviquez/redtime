@@ -10,7 +10,7 @@ Vue.use(VueRouter);
 
 const routes = [
   {
-    path: "/",
+    path: "/Home",
     name: "Home",
     component: Home
   },
@@ -28,7 +28,7 @@ const routes = [
     }
   },
   {
-    path: "/calendar",
+    path: "/",
     name: "Calendar",
     component: Calendar,
     meta: {
@@ -55,7 +55,7 @@ const router = new VueRouter({
 router.beforeEach(async (to, from, next) => {
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
   if (requiresAuth && !(await firebase.getCurrentUser())) {
-    next({ path: "/" });
+    next({ path: "/Home" });
   } else {
     next();
   }

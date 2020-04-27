@@ -162,13 +162,13 @@ export default {
     selectedEvent: {},
     selectedElement: null,
     selectedOpen: false,
-    dialog: false
+    dialog: false,
+    today: new Date().toISOString().substr(0, 10)
   }),
   mounted() {
     this.getEvents();
   },
   computed: {
-    today: new Date().toISOString().substr(0, 10),
     title() {
       const { start, end } = this;
       if (!start || !end) {
