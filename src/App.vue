@@ -2,7 +2,7 @@
   <v-app>
     <v-app-bar app color="primary" dark>
       <div class="d-flex align-center">
-        <router-link to="/Home">
+        <router-link to="/">
           <v-img
             alt="Red Time Logo"
             class="shrink mr-2"
