@@ -108,7 +108,7 @@
               <div class="flex-grow-1"></div>
             </v-toolbar>
             <v-card-text>
-              <form v-if="currentlyEditing !== selectedEvent.id">
+              <form>
                 <v-text-field
                   v-model="selectedEvent.start"
                   type="date"
@@ -120,32 +120,14 @@
                   label="color (click to open color menu)"
                 ></v-text-field>
               </form>
-              <form v-else>
-                <textarea-autosize
-                  v-model="selectedEvent.details"
-                  type="text"
-                  style="width: 100%"
-                  :min-height="100"
-                  placeholder="add note"
-                >
-                </textarea-autosize>
-              </form>
             </v-card-text>
             <v-card-actions>
-              <v-btn text color="secondary" @click="selectedOpen = false">
-                close
+              <v-btn outlined @click="selectedOpen = false">
+                cancel
               </v-btn>
               <v-btn
-                v-if="currentlyEditing !== selectedEvent.id"
-                text
+                outlined
                 color="secondary"
-                @click.prevent="editEvent(selectedEvent)"
-              >
-                edit
-              </v-btn>
-              <v-btn
-                text
-                v-else
                 type="submit"
                 @click.prevent="updateEvent(selectedEvent)"
               >
@@ -247,17 +229,9 @@ export default {
     next() {
       this.$refs.calendar.next();
     },
-    async addEvent() {
+    addEvent() {
       if (this.start && this.start.date === undefined) {
-        var newEvent = {
-          user: this.user.data.email,
-          name: this.name ? this.name : "Period",
-          start: this.start,
-          end: this.setEndTime(),
-          color: this.color ? this.color : "secondary"
-        };
-        this.events.push(newEvent);
-        await db.collection("calEvent").add(newEvent);
+        this.setPeriodTime();
         (this.name = ""),
           (this.details = ""),
           (this.start = ""),
@@ -269,29 +243,129 @@ export default {
         );
       }
     },
-    setEndTime() {
-      var newDate = new Date(this.start);
-      newDate.setDate(newDate.getDate() + 4);
+    async setPeriodTime() {
+      var date = this.start;
+      var newEvent = {
+        period: {
+          name: "Period",
+          start: date,
+          end: this.getDate(4, this.start),
+          color: this.color ? this.color : "#ffa4a2"
+        },
+        ovulation: {
+          name: "Ovulation",
+          start: this.getDate(14, this.start),
+          end: this.getDate(14, this.start),
+          color: this.color ? this.color : "#ffa4a2"
+        },
+        nextPeriod: {
+          name: "Period - Possible",
+          start: this.getDate(28, this.start),
+          end: this.getDate(28, this.start),
+          color: this.color ? this.color : "#ffa4a2"
+        }
+      };
+      await db.collection(`calEvent-${this.user.data.email}`).add(newEvent);
+      this.getEvents();
+    },
+    getDate(days, date) {
+      var newDate = new Date(date);
+      newDate.setDate(newDate.getDate() + days);
       var endDate = new Date(newDate).toJSON().slice(0, 10);
       return endDate;
     },
-    editEvent(ev) {
-      this.currentlyEditing = ev.id;
-    },
-    async updateEvent(ev) {
-      await db
-        .collection("calEvent")
-        .doc(this.currentlyEditing)
-        .update({
-          details: ev.details
-        });
+    updateEvent(ev) {
+      if (ev.name === "Period") {
+        this.updatePeriod(ev, 14, 28);
+      } else if (ev.name === "Ovulation") {
+        this.updateOvulation(ev, -14, 14);
+      } else if (ev.name == "Period - Possible") {
+        this.updateNextPeriod(ev, -28, -14);
+      }
       this.selectedOpen = false;
-      this.currentlyEditing = null;
+    },
+    async updatePeriod(ev, ovulationDays, nextPeriodDays) {
+      await db
+        .collection(`calEvent-${this.user.data.email}`)
+        .doc(ev.id)
+        .update({
+          nextPeriod: {
+            color: ev.color ? ev.color : "#ffa4a2",
+            end: this.getDate(nextPeriodDays, ev.start),
+            name: "Period - Possible",
+            start: this.getDate(nextPeriodDays, ev.start)
+          },
+          ovulation: {
+            name: "Ovulation",
+            start: this.getDate(ovulationDays, ev.start),
+            end: this.getDate(ovulationDays, ev.start),
+            color: ev.color ? ev.color : "#ffa4a2"
+          },
+          period: {
+            color: ev.color,
+            end: this.getDate(4, ev.start),
+            name: "Period",
+            start: ev.start
+          }
+        });
+      this.getEvents();
+    },
+    async updateOvulation(ev, periodDays, nextPeriodDays) {
+      await db
+        .collection(`calEvent-${this.user.data.email}`)
+        .doc(ev.id)
+        .update({
+          nextPeriod: {
+            color: ev.color ? ev.color : "#ffa4a2",
+            end: this.getDate(nextPeriodDays, ev.start),
+            name: "Period - Possible",
+            start: this.getDate(nextPeriodDays, ev.start)
+          },
+          ovulation: {
+            name: "Ovulation",
+            start: ev.start,
+            end: ev.start,
+            color: ev.color ? ev.color : "secondary"
+          },
+          period: {
+            color: ev.color,
+            end: this.getDate(periodDays + 4, ev.start),
+            name: ev.name,
+            start: this.getDate(periodDays, ev.start)
+          }
+        });
+      this.getEvents();
+    },
+    async updateNextPeriod(ev, periodDays, ovulationDays) {
+      await db
+        .collection(`calEvent-${this.user.data.email}`)
+        .doc(ev.id)
+        .update({
+          nextPeriod: {
+            color: ev.color ? ev.color : "#ffa4a2",
+            end: ev.start,
+            name: "Period - Possible",
+            start: ev.start
+          },
+          ovulation: {
+            name: "Ovulation",
+            start: this.getDate(ovulationDays, ev.start),
+            end: this.getDate(ovulationDays, ev.start),
+            color: ev.color ? ev.color : "secondary"
+          },
+          period: {
+            color: ev.color,
+            end: this.getDate(periodDays + 4, ev.start),
+            name: ev.name,
+            start: this.getDate(periodDays, ev.start)
+          }
+        });
       this.getEvents();
     },
     async deleteEvent(ev) {
+      console.log(ev);
       await db
-        .collection("calEvent")
+        .collection(`calEvent-${this.user.data.email}`)
         .doc(ev)
         .delete();
       this.selectedOpen = false;
@@ -319,6 +393,9 @@ export default {
       return d > 3 && d < 21
         ? "th"
         : ["th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th"][d % 10];
+    },
+    isNotPeriodEvent() {
+      return this.selectedEvent.name !== "Period";
     },
     ...mapMutations({
       setSnack: "snackbar/setSnack"

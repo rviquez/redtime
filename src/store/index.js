@@ -43,14 +43,20 @@ export default new Vuex.Store({
     },
     setEvents: async context => {
       let snapshot = await db
-        .collection("calEvent")
-        .where("user", "==", context.getters.user.data.email)
+        .collection(`calEvent-${context.getters.user.data.email}`)
         .get();
       const events = [];
+
       snapshot.forEach(doc => {
-        let appData = doc.data();
-        appData.id = doc.id;
-        events.push(appData);
+        if (doc) {
+          let appData = doc.data();
+          appData.nextPeriod.id = doc.id;
+          events.push(appData.nextPeriod);
+          appData.ovulation.id = doc.id;
+          events.push(appData.ovulation);
+          appData.period.id = doc.id;
+          events.push(appData.period);
+        }
       });
       context.commit("setEvents", events);
     }

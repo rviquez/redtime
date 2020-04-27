@@ -2,14 +2,16 @@
   <v-app>
     <v-app-bar app color="primary" dark>
       <div class="d-flex align-center">
-        <v-img
-          alt="Red Time Logo"
-          class="shrink mr-2"
-          contain
-          src="../public/img/icons/android-chrome-192x192.png"
-          transition="scale-transition"
-          width="40"
-        />
+        <router-link to="/">
+          <v-img
+            alt="Red Time Logo"
+            class="shrink mr-2"
+            contain
+            src="../public/img/icons/android-chrome-192x192.png"
+            transition="scale-transition"
+            width="40"
+          />
+        </router-link>
       </div>
 
       <v-spacer></v-spacer>
