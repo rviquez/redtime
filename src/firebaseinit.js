@@ -21,6 +21,9 @@ firebase.auth().onAuthStateChanged(user => {
 });
 
 firebase.firestore();
+firebase.enablePersistence({
+  experimentalTabSynchronization: true
+});
 firebase.analytics();
 
 firebase.getCurrentUser = () => {

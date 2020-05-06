@@ -24,9 +24,23 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
 export default {
   name: "Welcome",
 
-  data: () => ({})
+  data: () => ({}),
+  mounted() {
+    if (this.user) {
+      this.$router.replace({
+        name: "Calendar"
+      });
+    }
+  },
+  computed: {
+    ...mapGetters({
+      // map `this.user` to `this.$store.getters.user`
+      user: "user"
+    })
+  }
 };
 </script>
